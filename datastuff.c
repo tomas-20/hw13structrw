@@ -68,7 +68,6 @@ void csv_to_data(char *csv_path, char *data_path) {
   fill_boros(boros, header);
   struct pop_entry entries[line_count * boro_count];
   fill_entries(entries, boros, table);
-  printf("data size is %lu\n", sizeof entries);
 
   int data_file = open(data_path, O_CREAT | O_WRONLY, 0644);
   write(data_file, entries, sizeof entries);
@@ -77,7 +76,6 @@ void csv_to_data(char *csv_path, char *data_path) {
 
 void show_data(char *data_path) {
   int entry_count = get_file_size(data_path) / sizeof (struct pop_entry);
-  printf("data size is %d\n", get_file_size(data_path));
   struct pop_entry entries[entry_count];
   int data_file = open(data_path, O_RDONLY);
   read(data_file, entries, sizeof entries);
