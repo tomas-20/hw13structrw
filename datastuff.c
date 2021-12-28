@@ -27,7 +27,7 @@ void fill_boros(char **boros, char *header) {
   }
 }
 
-void fill_entries(struct pop_entry *entries, char **boros, char *line) {
+struct pop_entry *fill_some_entries(struct pop_entry *entries, char **boros, char *line) {
   int year = atoi(strsep(&line, ","));
   while (line) {
     entries->year = year;
@@ -36,6 +36,7 @@ void fill_entries(struct pop_entry *entries, char **boros, char *line) {
     entries ++;
     boros ++;
   }
+  return entries;
 }
 
 int main() {
@@ -50,7 +51,7 @@ int main() {
 
   char line[] = "1790,33131,4549,6159,1781,3827";
   struct pop_entry entries[boro_count];
-  fill_entries(entries, boros, line);
+  fill_some_entries(entries, boros, line);
 
   for (int i = 0; i < boro_count; i ++) {
     printf("year: %d population: %d boro: %s\n", entries[i].year, entries[i].population, entries[i].boro);
