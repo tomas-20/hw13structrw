@@ -56,11 +56,12 @@ int get_file_size(char *path) {
 
 void csv_to_data(char *csv_path, char *data_path) {
   char mesa[get_file_size(csv_path) / sizeof (char)];
+  char *table = mesa;
+
   int csv_file = open(csv_path, O_RDONLY);
   read(csv_file, mesa, sizeof mesa);
   close(csv_file);
 
-  char *table = mesa;
   int line_count = char_count(table, '\n') - 1;
   char *header = strsep(&table, "\n");
   int boro_count = char_count(header, ',');
@@ -91,6 +92,28 @@ void show_data(char *data_path) {
   }
 }
 
+void add_entry(char *path) {
+  struct pop_entry entry;
+  char input[1000];
+  printf("year: ");
+  fgets(input, 1000, stdin);
+  entry.year = atoi(input);
+  printf("boro: ");
+  fgets(input, 1000, stdin);
+  strtok(input, "\n");
+  strncpy(entry.boro, input, 15);
+  printf("pop: ");
+  fgets(input, 1000, stdin);
+  entry.population = atoi(input);
+
+  int file = open(path, O_WRONLY | O_APPEND);
+  write(file, &entry, sizeof entry);
+  close(file);
+
+  printf("Appended data to file: ");
+  show_entry(&entry);
+}
+
 void read_csv() {
   csv_to_data("statistics.csv", "statistics.data");
 }
@@ -99,7 +122,13 @@ void read_data() {
   show_data("statistics.data");
 }
 
+void add_data() {
+  add_entry("statistics.data");
+}
+
 int main() {
   read_csv();
+  read_data();
+  add_data();
   read_data();
 }
