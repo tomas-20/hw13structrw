@@ -1,5 +1,8 @@
 #include <string.h>
 #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/stat.h>
 #include <stdio.h>
 
 struct pop_entry {
@@ -45,22 +48,55 @@ void fill_entries(struct pop_entry *entries, char **boros, char *table) {
   }
 }
 
-struct pop_entry *get_entries(char *table) {
-  int line_count = char_count(table, '\n');
+int get_file_size(char *path) {
+  struct stat file_stats;
+  stat(path, &file_stats);
+  return file_stats.st_size;
+}
+
+void csv_to_data(char *csv_path, char *data_path) {
+  char mesa[get_file_size(csv_path) / sizeof (char)];
+  int csv_file = open(csv_path, O_RDONLY);
+  read(csv_file, mesa, sizeof mesa);
+  close(csv_file);
+
+  char *table = mesa;
+  int line_count = char_count(table, '\n') - 1;
   char *header = strsep(&table, "\n");
   int boro_count = char_count(header, ',');
   char *boros[boro_count];
   fill_boros(boros, header);
-  struct pop_entry *entries = malloc(sizeof (struct pop_entry[line_count * boro_count]));
+  struct pop_entry entries[line_count * boro_count];
   fill_entries(entries, boros, table);
-  return entries;
+  printf("data size is %lu\n", sizeof entries);
+
+  int data_file = open(data_path, O_CREAT | O_WRONLY, 0644);
+  write(data_file, entries, sizeof entries);
+  close(data_file);
+}
+
+void show_data(char *data_path) {
+  int entry_count = get_file_size(data_path) / sizeof (struct pop_entry);
+  printf("data size is %d\n", get_file_size(data_path));
+  struct pop_entry entries[entry_count];
+  int data_file = open(data_path, O_RDONLY);
+  read(data_file, entries, sizeof entries);
+  close(data_file);
+
+  for (int i = 0; i < entry_count; i ++) {
+    printf("%d: year: %d boro: %s pop: %d\n", i, entries[i].year, entries[i].boro, entries[i].population);
+  }
+}
+
+void read_csv() {
+  csv_to_data("statistics.csv", "statistics.data");
+}
+
+void read_data() {
+  show_data("statistics.data");
 }
 
 int main() {
-  char table[] = "Year,Manhattan,Brooklyn,Queens,Bronx,Staten Island\n1790,33131,4549,6159,1781,3827\n1800,60515,5740,6642,1755,4563\n1810,96373,8303,7444,2267,5347\n1820,123706,11187,8246,2782,6135\n1830,202589,20535,9049,3023,7082\n1840,312710,47613,14480,5346,10965\n1850,515547,138882,18593,8032,15061\n1860,813669,279122,32903,23593,25492\n1870,942292,419921,45468,37393,33029\n1880,1164673,599495,56559,51980,38991\n1890,1441216,838547,87050,88908,51693\n1900,1850093,1166582,152999,200507,67021\n1910,2331542,1634351,284041,430980,85969\n1920,2284103,2018356,469042,732016,116531\n1930,1867312,2560401,1079129,1265258,158346\n1940,1889924,2698285,1297634,1394711,174441\n1950,1960101,2738175,1550849,1451277,191555\n1960,1698281,2627319,1809578,1424815,221991\n1970,1539233,2602012,1986473,1471701,295443\n1980,1428285,2230936,1891325,1168972,352121\n1990,1487536,2300664,1951598,1203789,378977\n2000,1537195,2465326,2229379,1332650,443728\n2010,1585873,2504700,2230722,1385108,468730";
-  struct pop_entry *entries = get_entries(table);
-
-  for (int i = 0; i < 115; i ++) {
-    printf("year: %d population: %d boro: %s\n", entries[i].year, entries[i].population, entries[i].boro);
-  }
+  read_csv();
+  read_data();
 }
