@@ -92,19 +92,23 @@ void show_data(char *data_path) {
   }
 }
 
-void add_entry(char *path) {
-  struct pop_entry entry;
+void fill_entry(struct pop_entry *entry) {
   char input[1000];
   printf("year: ");
   fgets(input, 1000, stdin);
-  entry.year = atoi(input);
+  entry->year = atoi(input);
   printf("boro: ");
   fgets(input, 1000, stdin);
   strtok(input, "\n");
-  strncpy(entry.boro, input, 15);
+  strncpy(entry->boro, input, 15);
   printf("pop: ");
   fgets(input, 1000, stdin);
-  entry.population = atoi(input);
+  entry->population = atoi(input);
+}
+
+void add_entry(char *path) {
+  struct pop_entry entry;
+  fill_entry(&entry);
 
   int file = open(path, O_WRONLY | O_APPEND);
   write(file, &entry, sizeof entry);
