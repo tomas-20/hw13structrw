@@ -70,9 +70,11 @@ void csv_to_data(char *csv_path, char *data_path) {
   struct pop_entry entries[line_count * boro_count];
   fill_entries(entries, boros, table);
 
-  int data_file = open(data_path, O_CREAT | O_WRONLY, 0644);
+  int data_file = open(data_path, O_WRONLY | O_TRUNC | O_CREAT , 0644);
   write(data_file, entries, sizeof entries);
   close(data_file);
+
+  printf("Imported entries from %s\n", csv_path);
 }
 
 void show_entry(struct pop_entry *entry) {
@@ -133,25 +135,20 @@ void update_entry(char *path) {
   show_entry(&entry);
 }
 
-void read_csv() {
-  csv_to_data("statistics.csv", "statistics.data");
-}
-
-void read_data() {
-  show_data("statistics.data");
-}
-
-void add_data() {
-  add_entry("statistics.data");
-}
-
-void update_data() {
-  update_entry("statistics.data");
-}
-
-int main() {
-  read_csv();
-  read_data();
-  update_data();
-  read_data();
+int main(int argc, char **argv) {
+  if (argc > 1) {
+    char *flag = argv[1];
+    if (!strcmp(flag, "-read_csv")) {
+      csv_to_data("statistics.csv", "statistics.data");
+    }
+    else if (!strcmp(flag, "-read_data")) {
+      show_data("statistics.data");
+    }
+    else if (!strcmp(flag, "-add_data")) {
+      add_entry("statistics.data");
+    }
+    else if (!strcmp(flag, "-update_data")) {
+      update_entry("statistics.data");
+    }
+  }
 }
