@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <stdio.h>
+#define CSV_PATH "statistics.csv"
+#define DATA_PATH "statistics.data"
 
 struct pop_entry {
   int year;
@@ -81,12 +83,12 @@ void show_entry(struct pop_entry *entry) {
   printf("year: %d boro: %s pop: %d\n", entry->year, entry->boro, entry->population);
 }
 
-void show_data(char *data_path) {
-  int entry_count = get_file_size(data_path) / sizeof (struct pop_entry);
+void show_data(char *path) {
+  int entry_count = get_file_size(path) / sizeof (struct pop_entry);
   struct pop_entry entries[entry_count];
-  int data_file = open(data_path, O_RDONLY);
-  read(data_file, entries, sizeof entries);
-  close(data_file);
+  int file = open(path, O_RDONLY);
+  read(file, entries, sizeof entries);
+  close(file);
 
   for (int i = 0; i < entry_count; i ++) {
     printf("%d: ", i);
@@ -139,16 +141,16 @@ int main(int argc, char **argv) {
   if (argc > 1) {
     char *flag = argv[1];
     if (!strcmp(flag, "-read_csv")) {
-      csv_to_data("statistics.csv", "statistics.data");
+      csv_to_data(CSV_PATH, DATA_PATH);
     }
     else if (!strcmp(flag, "-read_data")) {
-      show_data("statistics.data");
+      show_data(DATA_PATH);
     }
     else if (!strcmp(flag, "-add_data")) {
-      add_entry("statistics.data");
+      add_entry(DATA_PATH);
     }
     else if (!strcmp(flag, "-update_data")) {
-      update_entry("statistics.data");
+      update_entry(DATA_PATH);
     }
   }
 }
