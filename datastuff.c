@@ -74,6 +74,10 @@ void csv_to_data(char *csv_path, char *data_path) {
   close(data_file);
 }
 
+void show_entry(struct pop_entry *entry) {
+  printf("year: %d boro: %s pop: %d\n", entry->year, entry->boro, entry->population);
+}
+
 void show_data(char *data_path) {
   int entry_count = get_file_size(data_path) / sizeof (struct pop_entry);
   struct pop_entry entries[entry_count];
@@ -82,7 +86,8 @@ void show_data(char *data_path) {
   close(data_file);
 
   for (int i = 0; i < entry_count; i ++) {
-    printf("%d: year: %d boro: %s pop: %d\n", i, entries[i].year, entries[i].boro, entries[i].population);
+    printf("%d: ", i);
+    show_entry(entries + i);
   }
 }
 
