@@ -114,7 +114,22 @@ void add_entry(char *path) {
   write(file, &entry, sizeof entry);
   close(file);
 
-  printf("Appended data to file: ");
+  printf("Added entry: ");
+  show_entry(&entry);
+}
+
+void update_entry(char *path) {
+  printf("Entry to update: ");
+  char input[1000];
+  fgets(input, 1000, stdin);
+  int index = atoi(input);
+  struct pop_entry entry;
+  fill_entry(&entry);
+
+  int file = open(path, O_WRONLY);
+  lseek(file, sizeof (struct pop_entry[index]), SEEK_SET);
+  write(file, &entry, sizeof entry);
+  printf("Updated entry %d to: ", index);
   show_entry(&entry);
 }
 
@@ -130,9 +145,13 @@ void add_data() {
   add_entry("statistics.data");
 }
 
+void update_data() {
+  update_entry("statistics.data");
+}
+
 int main() {
   read_csv();
   read_data();
-  add_data();
+  update_data();
   read_data();
 }
